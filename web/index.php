@@ -1,4 +1,9 @@
 <?php
+require __DIR__ . '/../vendor/autoload.php'; // this loads Composer's autoloader
+
+// Load .env file if it exists
+$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__.'/../');
+$dotenv->load();
 
 // comment out the following two lines when deployed to production
 defined('YII_DEBUG') or define('YII_DEBUG', true);

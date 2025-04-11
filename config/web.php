@@ -15,6 +15,21 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'GrF3Yp194LjHdrCmELNXvSxO5irIC6Cv',
+            'enableCsrfValidation' => false,
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ],
+        ],
+        'response' => [
+            'class' => 'yii\web\Response',
+            'on beforeSend' => function ($event) {
+                $response = $event->sender;
+                if ($response->format == \yii\web\Response::FORMAT_JSON) {
+                    $response->headers->set('Access-Control-Allow-Origin', '*');
+                    $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+                    $response->headers->set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+                }
+            },
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -42,16 +57,29 @@ $config = [
             ],
         ],
         'db' => $db,
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'POST api/auth/login' => 'api/auth/login',
+                'POST api/auth/signup' => 'api/auth/signup',
+                'GET api/auth/verify-email' => 'api/auth/verify-email',
+                'POST api/auth/request-password-reset' => 'api/auth/request-password-reset',
+                'POST api/auth/reset-password' => 'api/auth/reset-password',
+                'POST api/auth/refresh-token' => 'api/auth/refresh-token',
+                'POST api/auth/logout' => 'api/auth/logout',
+                'GET api/auth/me' => 'api/auth/me',
             ],
         ],
-        */
     ],
-    'params' => $params,
+    'params' => $params + [
+        'jwt.secret' => $_ENV['JWT_API_KEY'],
+        'jwt.issuer' => $_ENV['JWT_ISSUER'],
+        'jwt.accessTokenExpire' => $_ENV['accessTokenExpire'],
+        'jwt.refreshTokenExpire' => $_ENV['refreshTokenExpire'],
+        'user.passwordResetTokenExpire' => $_ENV['passwordResetTokenExpire'],
+        'supportEmail' => $_ENV['supportEmail'],
+    ],
 ];
 
 if (YII_ENV_DEV) {
